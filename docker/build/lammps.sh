@@ -22,6 +22,7 @@ docker build \
     -f ${DOCKER_DIR}/${IMAGE_NAME}.dockerfile \
     --build-arg EXPERIMENTS_VERSION=${EXPERIMENTS_VERSION} \
     --build-arg FAABRIC_VERSION=${FAABRIC_VERSION} \
+    --build-arg FORCE_RECREATE=$(date +%s) \
     ${PROJ_ROOT}
 
 popd >> /dev/null
