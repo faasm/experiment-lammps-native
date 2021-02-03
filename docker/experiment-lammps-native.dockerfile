@@ -28,7 +28,7 @@ WORKDIR /code
 RUN git clone -b master https://github.com/faasm/lammps
 
 # Prepare code (the below trick ensures not caching and re-cloning)
-# ARG FORCE_RECREATE=unknown
+ARG FORCE_RECREATE=unknown
 RUN apt install -y gdb vim 
 RUN git clone https://github.com/faasm/experiment-lammps-native
 WORKDIR /code/experiment-lammps-native
