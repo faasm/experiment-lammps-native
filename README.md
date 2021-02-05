@@ -61,19 +61,28 @@ Alternatively, to scale the experiment once deployed, you may run:
 kubectl scale --replicas=<NEW_REPLICA_COUNT> -f ./k8s/deployment.yaml
 ```
 
-Generate the hostfile:
+Once you are confident of the size of your cluster, you can create the hostfile
+for the MPI deployment. By default, this will fix the `slots` parameter (i.e.
+how many MPI processes may run per worker) to 4.
 ```
 ./k8s/gen_host_file.sh
 ```
-
-You may now exec directly into the master pod using:
+If you want to run with a different `slots` value, you can use an env variable:
 ```
-kubectl exec -it ${MPI_MASTER} -- bash
+export MPI_MAX_PROC=<NEW_VALUE> ./k8s/gen_host_file.sh
+```
+
+You may now exec directly into the master pod using, remember to switch to the
+`mpirun` user to run tests manually or ssh into other pods (otherwise the SSH
+config won't work).
+```
+kubectl exec -it <MPI_MASTER_NAME> -- bash
+su mpirun
 ```
 
 To stop the execution just run:
 ```
-kubectl stop -f ./k8s/deployment.yaml
+kubectl delete -f ./k8s/deployment.yaml
 ```
 
 ### SCS's message
