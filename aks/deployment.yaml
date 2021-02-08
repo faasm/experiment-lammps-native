@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lammps-native
+spec:
+  selector:
+    matchLabels:
+      run: lammps
+  replicas: 5
+  template:
+    metadata:
+      name: mpi-worker
+      labels:
+        run: lammps
+    spec:
+      containers:
+        - name: mpi-worker
+          image: faasmcr.azurecr.io/experiment-lammps-native:0.0.1
+          imagePullPolicy: IfNotPresent
+          #imagePullPolicy: Always
+      imagePullSecrets:
+        - name: faasmcr-secret

@@ -85,9 +85,99 @@ To stop the execution just run:
 kubectl delete -f ./k8s/deployment.yaml
 ```
 
+### Azure Benchmarks Set-Up
+
+To run the experiments at the Azure cluster, you need to set up the azure
+client (`az`).
+
+Steps taken:
+1. Installation and login 
+```
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+az login # use IMP credentials
+# set the account to the LSDS one
+az account set -s e594b650-46d3-4375-be21-2ea11e8ed741
+```
+2. Create container registry:
+
+First, the following registries need to be enabled: `Microsoft.ContainerInstance`,
+`Microsoft.ContainerRegistry`, and `Microsoft.ContainerService`. To check
+whether these are enabled or not, you may use:
+```
+az provider show --namespace Microsoft.ContainerInstance | head -20
+```
+
+Then, you can create the container registry and login:
+```
+az acr create --resource-group faasm --name faasmcr --sku Basic
+az acr login --name faasmcr
+```
+
+Now you may tag and push your images as you'd do with any other container
+registry service. First, though, you need to query for the login server URL:
+```
+azure acr list --resource-group faasm --query "[].{acrLoginServer:loginServer}" --output table
+# faasmcr.azurecr.io at the time of the writing
+
+# Tag the image
+docker tag <img> faasmcr.azurecr.io/<img>
+
+# Push it
+docker push faasmcr.azurecr.io/<img>
+
+# Check that it uploaded sucesfully
+az acr repository list --name faasmcr --output table
+```
+
+3. Create a k8s cluster:
+
+The next command fails to attach to the ACR as it requires owner privileges.
+I'll wait I can circumvent it somehow.
+```
+az aks create --resource-group faasm --name faasmCluster --node-count 2 --generate-ssh-keys --atach-acr faasmcr
+
+# Get the credentials
+az aks get-credentials --resource-group faasm --name faasmCluster
+
+# Check that the nodes are ready
+kubectl get nodes
+```
+
+As we can't programmatically link with the ACR due to lack of privileges, we
+can manually generate a secret for AKS to pull from ACR:
+```
+az acr update -n faasmcr --admin-enabled-true
+
+ACR_NAME=faasmcr
+ACR_UNAME=$(az acr credential show -n $ACR_NAME --query="username" -o tsv)
+ACR_PASSWD=$(az acr credential show -n $ACR_NAME --query="passwords[0].value" -o tsv)
+
+kubectl create secret docker-registry acr-secret \
+  --docker-server="$ACR_NAME.azurecr.io" \
+  --docker-username=$ACR_UNAME \
+  --docker-password=$ACR_PASSWD \
+```
+
+4. Deploy application and run benchmark:
+```
+kubectl apply -f aks/deployment.yaml
+
+./aks/run_benchmark.sh
+```
+
+5. To reduce the cost while the cluster is idle, you may stop it when you
+use it no more.
+
+
 ### Benchmark
 
 To run the benchmark, just execute (from your terminal):
 ```
 k8s/run_benchmark.sh
+aks/run_benchmark.sh
+```
+
+This should populate the folder in `./results`. Then generate the plots using:
+```
+cd plots && gnuplot lammps_k8s.gnuplot && cd -
 ```

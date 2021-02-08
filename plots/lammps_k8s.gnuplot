@@ -22,6 +22,9 @@ set ytics 15
 #set yrange [5:15]
 cols = int(system('head -1 ../results/lammps_native_k8s.log | wc -w'))
 plot '../results/lammps_native_k8s.log' \
+       using 1:int(cols - 1) w lp pt 7 title 'Vanilla @ u-k8s' ,\
+    '' using 1:int(cols - 1):cols w yerrorbars notitle ,\
+    '../results/lammps_native_az_k8s.log' \
        using 1:int(cols - 1) w lp pt 7 title 'Vanilla @ k8s' ,\
     '' using 1:int(cols - 1):cols w yerrorbars notitle
 
@@ -30,7 +33,9 @@ set title "{/Bold Speedup}"
 set ytics 4
 ref = int(system("head -1 ../results/lammps_native_k8s.log | rev | cut -d' ' -f2 | rev"))
 plot '../results/lammps_native_k8s.log' \
-        using 1:(ref/$5) w lp pt 7 title 'Vanilla @ k8s', \
+        using 1:(ref/$5) w lp pt 7 title 'Vanilla @ u-k8s', \
+    '../results/lammps_native_az_k8s.log' using 1:(ref/$5) w lp pt 7 \
+                                                    title 'Vanilla @ k8s', \
     '' using 1:1 w lp lt 2 notitle
     
 
