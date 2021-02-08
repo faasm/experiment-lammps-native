@@ -85,8 +85,9 @@ To stop the execution just run:
 kubectl delete -f ./k8s/deployment.yaml
 ```
 
-### SCS's message
+### Benchmark
 
-wahey! nice. i think the right k8s abstraction is a deployment, which should have a scale parameter or something that specifies how many containers it has. this is useful for automated experiments as you can use the k8s API to change the scale (and thus vary the number of MPI workers). you can also play around with the parameters of a deployment to make sure containers aren't placed on the same host for example.
-the end goal with this is to have an automated experiment that will run the same lammps job different numbers of MPI workers (and plot a graph of number of workers vs run time). i don't know if we can just create an MPI cluster with the max number of workers and use mpirun parameters to do this, or if it's better to actually limit the resources available using the scale of the k8s deployment. i think the latter is better, as it gives us more control and ensures MPI isn't doing anything funky (plus we can try to break it)
-we may also want to do experiments to demonstrate multi-tenancy or sequential execution of jobs, so we might want to execute multiple MPI jobs on the same limited number of workers, so it would be useful to be able to vary the scale through the API for that too. (edited)
+To run the benchmark, just execute (from your terminal):
+```
+k8s/run_benchmark.sh
+```

@@ -37,3 +37,8 @@ echo "----------------------------------------"
 mkdir -p ./results
 sudo microk8s kubectl cp ${MPI_MASTER}:/home/mpirun/lammps_native_k8s.log \
     ./results/lammps_native_k8s.log
+
+# Plot them
+pushd plot >> /dev/null
+gnuplot lammps_native_k8s.gnuplot
+popd >> /dev/null
