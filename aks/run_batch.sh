@@ -2,8 +2,8 @@
 
 set -e
 
-NUM_PROCS=(1 2 4 8 16)
-NUM_RUNS=4
+NUM_PROCS=(1 2 4 8)
+NUM_RUNS=1
 OUT_FILE=lammps_native_k8s.log
 rm -f ${OUT_FILE}
 

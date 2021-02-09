@@ -181,3 +181,12 @@ This should populate the folder in `./results`. Then generate the plots using:
 ```
 cd plots && gnuplot lammps_k8s.gnuplot && cd -
 ```
+
+#### Troubleshooting Execution
+
+It seems as though MPI does not like running with `np > vCPUs`. Granted it's
+not MPI _in general_ rather than LAMMPS may be too resource eager (?). Then,
+you must make sure that:
+* You run with `MPI_MAX_PROC <= $(nproc)`
+* Each pod is assigned at a different node. This is set in the deployment file
+but you can sanity check it using `kubectl get pods -o wide`.

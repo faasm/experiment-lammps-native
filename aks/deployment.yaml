@@ -15,8 +15,18 @@ spec:
     spec:
       containers:
         - name: mpi-worker
-          image: faasmcr.azurecr.io/experiment-lammps-native:0.0.1
+          image: faasm/experiment-lammps-native:0.0.1
           imagePullPolicy: IfNotPresent
           #imagePullPolicy: Always
       imagePullSecrets:
         - name: faasmcr-secret
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: run
+                operator: In
+                values: 
+                - lammps
+            topologyKey: "kubernetes.io/hostname"

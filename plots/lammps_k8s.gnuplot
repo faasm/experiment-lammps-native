@@ -18,15 +18,16 @@ do for [i = PROC_PER_NODE : MAX_PROCS : PROC_PER_NODE] \
 set title "{/Bold Elapsed Time} (".PROC_PER_NODE." procs. per node)"
 set ylabel "Time Elapsed [s]"
 # set yrange [5:60]
-set ytics 15
+set ytics 40
 #set yrange [5:15]
 cols = int(system('head -1 ../results/lammps_native_k8s.log | wc -w'))
+cols_az = int(system('head -1 ../results/lammps_native_az_k8s.log | wc -w'))
 plot '../results/lammps_native_k8s.log' \
        using 1:int(cols - 1) w lp pt 7 title 'Vanilla @ u-k8s' ,\
     '' using 1:int(cols - 1):cols w yerrorbars notitle ,\
     '../results/lammps_native_az_k8s.log' \
-       using 1:int(cols - 1) w lp pt 7 title 'Vanilla @ k8s' ,\
-    '' using 1:int(cols - 1):cols w yerrorbars notitle
+       using 1:int(cols_az - 1) w lp pt 7 title 'Vanilla @ k8s' ,\
+    '' using 1:int(cols_az - 1):cols w yerrorbars notitle
 
 # Speedup
 set title "{/Bold Speedup}"

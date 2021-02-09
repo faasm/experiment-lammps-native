@@ -5,7 +5,7 @@ set -e
 # Experiment variables
 ROOT_DIR=/code/experiment-lammps-native
 CLUSTER_SIZE=5
-MPI_PROCS_PER_NODE=5
+MPI_PROCS_PER_NODE=2
 echo "----------------------------------------"
 echo "       LAMMPS Native k8s Benchmark      "
 echo "                                        "
