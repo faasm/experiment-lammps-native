@@ -1,0 +1,60 @@
+---
+
+# - name: Recursively remove directory
+#   file:
+#     path: /home/faasm/experiment-kernels
+#     state: absent
+
+- name: "Check out experiments code"
+  git:
+    repo: "https://github.com/faasm/experiment-lammps-native"
+    dest: "/home/faasm/experiment-lammps-native"
+    force: yes
+    update: yes
+
+- name: "Check out LAMMPS code"
+  git:
+    repo: "https://github.com/faasm/lammps"
+    dest: "/home/faasm/lammps"
+    version: "master"
+    force: yes
+    update: yes
+
+- name: "Create /code directory"
+  file:
+    path: /code
+    state: directory
+    owner: faasm
+    group: faasm
+
+- name: "Create symbolic link to experiments repo"
+  become: yes
+  file:
+    src: "/home/faasm/experiment-lammps-native"
+    dest: "/code/experiment-lammps-native"
+    state: link
+    force: yes #unlinks other users
+    owner: faasm
+    group: faasm
+    mode: 0755
+
+- name: "Create symbolic link to LAMMPS repo"
+  become: yes
+  file:
+    src: "/home/faasm/lammps"
+    dest: "/code/lammps"
+    state: link
+    force: yes #unlinks other users
+    owner: faasm
+    group: faasm
+    mode: 0755
+
+- name: "chmod the code repositories"
+  become: yes
+  file:
+    path: /code
+    state: directory
+    owner: faasm
+    group: faasm
+    recurse: yes
+

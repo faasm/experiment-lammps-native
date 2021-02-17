@@ -1,0 +1,10 @@
+[all]
+52.170.2.203
+13.82.214.147
+13.92.212.229
+13.92.214.77
+13.92.224.228
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=faasm

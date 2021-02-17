@@ -8,7 +8,29 @@ In particular, the image installs the software and OpenMPI, and sets up the SSH
 server so that multi-host MPI execution can be replicated in different
 containers.
 
-## Build the image
+=============
+
+## Quick Start
+
+To get the benchmark up and running quickly, do just the following.
+This assumes:
+* You have configured the `az` Azure client ([see here](#az-setup)).
+
+Then to run the benchmark in an Azure k8s cluster:
+```
+aks/run_benchmark.sh
+```
+
+This should populate the folder in `./results`. Then generate the plots using:
+```
+cd plots && gnuplot lammps_k8s.gnuplot && cd -
+```
+
+==========
+
+## Step by step walkthrough
+
+### Build the image
 
 There's a single image to be built to run this experiments. You can inspect
 the source code at `docker/experiment-lammps-native.dockerfile`, and build it
@@ -22,13 +44,7 @@ Alternatively, you can pull it directly from docker hub:
 docker pull faasm/experiment-lammps-native
 ```
 
-## Deployment
-
-Currently running on the `koala5` machines with 10 CPUs and 2 cores per CPU.
-You can customize the number of available processes per CPU (assuming you don't
-turn on HW threads) by modifying the `slots` parameter in the hostfile.
-
-### Docker Compose
+### Run on Docker Compose
 
 First start the cluster:
 ```
@@ -48,20 +64,25 @@ scp helloworld worker:
 mpirun -np 5 --hostfile hostfile helloworld
 ```
 
-### K8s
+### Run on microk8s
 
 In order to run the deployment, you just need to run the command below. This
 will initialize a cluster with 5 MPI workers. Feel free to change the number
 of replicas by editing the `yaml` file.
 ```
-kubectl apply -f k8s/deployment.yaml
+microk8s kubectl apply -f k8s/deployment.yaml
 ```
 Alternatively, to scale the experiment once deployed, you may run:
 ```
-kubectl scale --replicas=<NEW_REPLICA_COUNT> -f ./k8s/deployment.yaml
+microk8s kubectl scale --replicas=<NEW_REPLICA_COUNT> -f ./k8s/deployment.yaml
 ```
 
-Once you are confident of the size of your cluster, you can create the hostfile
+Once you are confident of the size of your cluster, you can run the benchmark:
+```
+./k8s/run_benchmark.sh
+```
+
+To replicate what the benchmarking script does, you first create the hostfile
 for the MPI deployment. By default, this will fix the `slots` parameter (i.e.
 how many MPI processes may run per worker) to 4.
 ```
@@ -85,7 +106,7 @@ To stop the execution just run:
 kubectl delete -f ./k8s/deployment.yaml
 ```
 
-### Azure Benchmarks Set-Up
+### Azure Benchmarks Set-Up <a name="az-setup">
 
 To run the experiments at the Azure cluster, you need to set up the azure
 client (`az`).
@@ -98,7 +119,11 @@ az login # use IMP credentials
 # set the account to the LSDS one
 az account set -s e594b650-46d3-4375-be21-2ea11e8ed741
 ```
-2. Create container registry:
+
+**All the remaining steps were already done once, and shouldn't need to be
+done again. Kept here for future reference.**
+
+2. **OPTIONAL**: Create container registry
 
 First, the following registries need to be enabled: `Microsoft.ContainerInstance`,
 `Microsoft.ContainerRegistry`, and `Microsoft.ContainerService`. To check
@@ -169,18 +194,34 @@ kubectl apply -f aks/deployment.yaml
 use it no more.
 
 
-### Benchmark
+## Running on an Azure VM Scale Set (Bare Metal)
 
-To run the benchmark, just execute (from your terminal):
+**Important: delete the cluster as you are done with it, otherwise we will
+be charged _a lot_.**
+
+I'd also recommend opening the Azure portal on the browser to check the current
+cost and allocated resources.
+
+To bootstrap the cluster just run:
 ```
-k8s/run_benchmark.sh
-aks/run_benchmark.sh
+./az-vm/az_vms.sh create <NUM_VMs>
 ```
 
-This should populate the folder in `./results`. Then generate the plots using:
+You can check through the portal this creates a VM Scale Set with `<NUM_VMs>`
+instances.
+It also creates additional resources for cluster maintenance.
+
+To run the benchmarks just do:
 ```
-cd plots && gnuplot lammps_k8s.gnuplot && cd -
+./az-vm/run_benchmark.sh
 ```
+which should create a data file under `./results`.
+
+Lastly to deallocate all resources run:
+```
+./az-vm/az_vms.sh delete
+```
+and delete through the browser the remaining components (veth, LBs, ...).
 
 #### Troubleshooting Execution
 

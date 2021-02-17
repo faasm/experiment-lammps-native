@@ -1,0 +1,6 @@
+---
+
+- name: "Build LAMMPS native"
+  shell: "./build/lammps.sh"
+  args:
+    chdir: "/code/experiment-lammps-native"

@@ -1,0 +1,12 @@
+---
+
+- hosts: all
+  gather_facts: yes
+  roles:
+    - deps
+    - cmake
+    - llvm10
+    - code
+    - openmpi
+    - keys
+    - lammps
