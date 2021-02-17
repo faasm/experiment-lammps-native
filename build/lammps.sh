@@ -11,7 +11,7 @@ mkdir -p ${LAMMPS_BUILD_DIR}
 
 pushd ${LAMMPS_BUILD_DIR} >> /dev/null
 
-rm -rf ${LAMMPS_BUILD_DIR}/*
+# rm -rf ${LAMMPS_BUILD_DIR}/*
 
 cmake -GNinja \
     -DCMAKE_BUILD_TYPE=Debug \
