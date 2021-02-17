@@ -39,6 +39,8 @@ plot '../results/lammps_native_k8s.log' \
         using 1:(ref/$5) w lp pt 7 title 'Vanilla @ u-k8s', \
     '../results/lammps_native_az_k8s.log' using 1:(ref_az/$5) w lp pt 7 \
                                                     title 'Vanilla @ k8s', \
+    '../results/lammps_native_vms.log' using 1:(ref_az/$5) w lp pt 7 \
+                                                    title 'Vanilla @ VMs', \
     '' using 1:1 w lp lt 2 notitle
     
 

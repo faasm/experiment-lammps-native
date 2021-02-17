@@ -1,6 +1,12 @@
 ---
 
+- name: "Check for LAMMPS build"
+  stat:
+    path: "/code/lammps/build/lmp"
+  register: lammps_stat
+
 - name: "Build LAMMPS native"
   shell: "./build/lammps.sh"
   args:
     chdir: "/code/experiment-lammps-native"
+    #when: lammps_stat.stat.exists == false
